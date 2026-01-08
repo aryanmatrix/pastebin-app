@@ -14,10 +14,13 @@ A modern, full-stack Pastebin application built with Next.js, PostgreSQL, and co
 - 🐳 Docker & Docker Compose support
 - ⚙️ ESLint configuration
 - 📦 Vercel deployment ready
+- 🎨 Modern UI with shadcn/ui components
+- 📱 Fully responsive design
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS
+- **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS 4, shadcn/ui
+- **UI Components**: Radix UI, Lucide React Icons
 - **Backend**: Next.js API Routes
 - **Database**: PostgreSQL (Neon/Local)
 - **Validation**: Zod
@@ -146,15 +149,24 @@ pastebin-app/
 ├── app/                           # Next.js App Router
 │   ├── layout.tsx                 # Root layout
 │   ├── page.tsx                   # Homepage
-│   ├── globals.css                # Global styles
+│   ├── globals.css                # Global styles & Tailwind
 │   └── api/                       # API Routes
 │       ├── health/route.js        # Health check endpoint
 │       └── pastes/
 │           ├── route.js           # GET (list), POST (create)
 │           └── [id]/route.js      # GET (retrieve), DELETE (remove)
+├── components/
+│   └── ui/                        # shadcn/ui components
+│       ├── button.tsx             # Button component
+│       ├── input.tsx              # Input component
+│       ├── textarea.tsx           # Textarea component
+│       ├── label.tsx              # Label component
+│       ├── radio-group.tsx        # Radio group component
+│       └── alert.tsx              # Alert component
 ├── lib/
 │   ├── db.js                      # Database connection & queries
-│   └── validation.js              # Input validation schemas (Zod)
+│   ├── validation.js              # Input validation schemas (Zod)
+│   └── utils.ts                   # Utility functions (cn for classname merging)
 ├── public/                        # Static assets
 ├── Dockerfile                     # Docker image configuration
 ├── docker-compose.yml             # Docker Compose for local dev
@@ -163,6 +175,7 @@ pastebin-app/
 ├── tsconfig.json                  # TypeScript configuration
 ├── eslint.config.mjs              # ESLint rules
 ├── postcss.config.mjs             # PostCSS configuration
+├── components.json                # shadcn/ui configuration
 └── package.json                   # Dependencies & scripts
 ```
 
