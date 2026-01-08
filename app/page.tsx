@@ -1,7 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Clock, Eye, Link2, Copy, Check, AlertCircle, Home } from 'lucide-react';
+import { Clock, Eye, Link2, Copy, Check, AlertCircle, Home, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 interface PasteData {
   title: string;
@@ -234,252 +240,237 @@ export default function ImprovedPasteBin() {
 
   if (view === 'view') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold text-white">PasteBin</h1>
-              <button
-                onClick={resetToCreate}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-              >
-                <Home className="w-4 h-4" />
-                Create New
-              </button>
-            </div>
-
-            {loading && (
-              <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white"></div>
-                <p className="text-white mt-4">Loading paste...</p>
-              </div>
-            )}
-
-            {error && (
-              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 mb-6 flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-300 flex-shrink-0 mt-0.5" />
-                <p className="text-red-200">{error}</p>
-              </div>
-            )}
-
-            {viewData && !loading && (
-              <div>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-semibold text-white mb-2">
-                    {viewData.title || 'Untitled'}
-                  </h2>
-                  <div className="flex flex-wrap gap-4 text-sm text-gray-300">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {new Date(viewData.createdAt).toLocaleString()}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
-                      Views: {viewData.viewCount}
-                      {viewData.maxViews ? ` / ${viewData.maxViews}` : ''}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950/50 rounded-lg p-6 border border-white/10 overflow-auto">
-                  <pre className="text-gray-100 whitespace-pre-wrap break-words font-mono text-sm">
-                    {sanitizeContent(viewData.content)}
-                  </pre>
-                </div>
-
-                {viewData.expiresAt && (
-                  <p className="text-gray-400 text-sm mt-4">
-                    Expires: {new Date(viewData.expiresAt).toLocaleString()}
-                  </p>
-                )}
-
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(viewData.content);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  }}
-                  className="mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors flex items-center gap-2"
-                >
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copied ? 'Copied!' : 'Copy Content'}
-                </button>
-              </div>
-            )}
+      <div className="min-h-screen bg-background">
+        <div className="max-w-2xl mx-auto p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">PasteBin</h1>
+            <Button
+              onClick={resetToCreate}
+              variant="outline"
+            >
+              <Home className="w-4 h-4" />
+              Back to Create
+            </Button>
           </div>
+
+          {loading && (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-input border-t-primary"></div>
+              <p className="mt-4 text-muted-foreground">Loading paste...</p>
+            </div>
+          )}
+
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {viewData && !loading && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-semibold mb-2">
+                  {viewData.title || 'Untitled'}
+                </h2>
+                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    {new Date(viewData.createdAt).toLocaleString()}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Eye className="w-4 h-4" />
+                    Views: {viewData.viewCount}
+                    {viewData.maxViews ? ` / ${viewData.maxViews}` : ''}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border rounded-lg p-4 bg-muted overflow-auto max-h-96">
+                <pre className="text-sm font-mono whitespace-pre-wrap break-words">
+                  {sanitizeContent(viewData.content)}
+                </pre>
+              </div>
+
+              {viewData.expiresAt && (
+                <p className="text-sm text-muted-foreground">
+                  Expires: {new Date(viewData.expiresAt).toLocaleString()}
+                </p>
+              )}
+
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(viewData.content);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                variant="outline"
+                className="w-full"
+              >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? 'Copied to Clipboard!' : 'Copy Content'}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
-          <h1 className="text-4xl font-bold text-white mb-2">PasteBin</h1>
-          <p className="text-gray-300 mb-8">Share text content with expiring links</p>
-
-          {shareableLink ? (
-            <div className="space-y-6">
-              <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                  <Check className="w-6 h-6" />
-                  Paste Created Successfully!
-                </h2>
-                <p className="text-gray-200 mb-4">Share this link to view your content:</p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={shareableLink}
-                    readOnly
-                    className="flex-1 px-4 py-3 bg-slate-950/50 border border-white/20 rounded-lg text-white font-mono text-sm"
-                  />
-                  <button
-                    onClick={copyToClipboard}
-                    className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-                  >
-                    {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                    {copied ? 'Copied!' : 'Copy'}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setShareableLink('')}
-                className="w-full px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
-              >
-                Create Another Paste
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {error && (
-                <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-300 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-200">{error}</p>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-white font-medium mb-2">
-                  Title (optional)
-                  <span className="text-gray-400 text-sm font-normal ml-2">
-                    {title.length}/{MAX_TITLE_LENGTH}
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value.slice(0, MAX_TITLE_LENGTH))}
-                  placeholder="Untitled"
-                  className="w-full px-4 py-3 bg-slate-950/50 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block text-white font-medium mb-2">
-                  Content
-                  <span className="text-gray-400 text-sm font-normal ml-2">
-                    {content.length.toLocaleString()}/{MAX_CONTENT_LENGTH.toLocaleString()}
-                  </span>
-                </label>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Paste your content here..."
-                  rows={12}
-                  className="w-full px-4 py-3 bg-slate-950/50 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors font-mono text-sm resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-white font-medium mb-2">Expiration</label>
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="expiration"
-                      checked={expirationType === 'never'}
-                      onChange={() => handleExpirationTypeChange('never')}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-gray-200">Never expire</span>
-                  </label>
-
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="expiration"
-                      checked={expirationType === 'time'}
-                      onChange={() => handleExpirationTypeChange('time')}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-gray-200 flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Expire after
-                      <input
-                        type="number"
-                        min="1"
-                        max="8760"
-                        value={hoursValue}
-                        onChange={(e) => handleNumberInput(e.target.value, setHoursValue)}
-                        placeholder="24"
-                        className="w-20 px-2 py-1 bg-slate-950/50 border border-white/20 rounded text-white text-center"
-                      />
-                      hours
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="expiration"
-                      checked={expirationType === 'views'}
-                      onChange={() => handleExpirationTypeChange('views')}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-gray-200 flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      Expire after
-                      <input
-                        type="number"
-                        min="1"
-                        max="10000"
-                        value={viewsValue}
-                        onChange={(e) => handleNumberInput(e.target.value, setViewsValue)}
-                        placeholder="10"
-                        className="w-20 px-2 py-1 bg-slate-950/50 border border-white/20 rounded text-white text-center"
-                      />
-                      views
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <button
-                onClick={createPaste}
-                disabled={loading || !content.trim()}
-                className="w-full px-6 py-4 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Link2 className="w-5 h-5" />
-                    Create Shareable Link
-                  </>
-                )}
-              </button>
-
-              <p className="text-gray-400 text-sm text-center">
-                Your content will be stored securely and accessible via a unique link
-              </p>
-            </div>
-          )}
+    <div className="min-h-screen bg-background">
+      <div className="max-w-2xl mx-auto p-6">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2">PasteBin</h1>
+          <p className="text-muted-foreground">Share text content with expiring links</p>
         </div>
+
+        {shareableLink ? (
+          <div className="space-y-6">
+            <Alert variant="success">
+              <Check className="h-4 w-4" />
+              <AlertTitle>Paste Created Successfully!</AlertTitle>
+              <AlertDescription>Share this link to view your content:</AlertDescription>
+            </Alert>
+
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                value={shareableLink}
+                readOnly
+                className="font-mono text-sm"
+              />
+              <Button
+                onClick={copyToClipboard}
+                size="sm"
+              >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? 'Copied' : 'Copy'}
+              </Button>
+            </div>
+
+            <Button
+              onClick={() => setShareableLink('')}
+              variant="outline"
+              className="w-full"
+            >
+              Create Another Paste
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <div>
+              <div className="flex justify-between mb-2">
+                <Label htmlFor="title">Title (optional)</Label>
+                <span className="text-xs text-muted-foreground">
+                  {title.length}/{MAX_TITLE_LENGTH}
+                </span>
+              </div>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value.slice(0, MAX_TITLE_LENGTH))}
+                placeholder="Enter a title for your paste"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between mb-2">
+                <Label htmlFor="content">Content</Label>
+                <span className="text-xs text-muted-foreground">
+                  {content.length.toLocaleString()}/{MAX_CONTENT_LENGTH.toLocaleString()}
+                </span>
+              </div>
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Paste your content here..."
+                className="font-mono text-sm"
+              />
+            </div>
+
+            <div>
+              <Label className="mb-3 block">Expiration</Label>
+              <RadioGroup value={expirationType} onValueChange={handleExpirationTypeChange}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="never" id="never" />
+                  <Label htmlFor="never" className="font-normal cursor-pointer">Never expire</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="time" id="time" />
+                  <Label htmlFor="time" className="font-normal cursor-pointer flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Expire after
+                    <Input
+                      type="number"
+                      min="1"
+                      max="8760"
+                      value={hoursValue}
+                      onChange={(e) => handleNumberInput(e.target.value, setHoursValue)}
+                      placeholder="24"
+                      className="w-20 h-9"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    hours
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="views" id="views" />
+                  <Label htmlFor="views" className="font-normal cursor-pointer flex items-center gap-2">
+                    <Eye className="w-4 h-4" />
+                    Expire after
+                    <Input
+                      type="number"
+                      min="1"
+                      max="10000"
+                      value={viewsValue}
+                      onChange={(e) => handleNumberInput(e.target.value, setViewsValue)}
+                      placeholder="10"
+                      className="w-20 h-9"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    views
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <Button
+              onClick={createPaste}
+              disabled={loading || !content.trim()}
+              className="w-full"
+              size="lg"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-background/30 border-t-background"></div>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Link2 className="w-4 h-4" />
+                  Create Shareable Link
+                </>
+              )}
+            </Button>
+
+            <p className="text-xs text-muted-foreground text-center">
+              Your content will be stored securely and accessible via a unique link
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
