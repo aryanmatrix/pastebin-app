@@ -38,7 +38,7 @@ export async function GET(request, { params }) {
       }, { status: 410 });
     }
 
-    // Check if paste has reached max views (before incrementing)
+    // Check if paste has already reached max views (before incrementing)
     if (paste.max_views && paste.view_count >= paste.max_views) {
       // Delete paste that reached view limit
       await getPool().query('DELETE FROM pastes WHERE id = $1', [id]);
@@ -57,18 +57,24 @@ export async function GET(request, { params }) {
       `UPDATE pastes 
        SET view_count = view_count + 1 
        WHERE id = $1 
-       RETURNING view_count`,
+       RETURNING view_count, max_views`,
       [id]
     );
 
     const newViewCount = updateResult.rows[0].view_count;
+    const maxViews = paste.max_views;
 
     // Check if this was the last allowed view
-    const isLastView = paste.max_views && newViewCount >= paste.max_views;
+    const isLastView = maxViews && newViewCount >= maxViews;
     
+    // Delete immediately after the last view is served
     if (isLastView) {
-      // Delete after showing one last time
-      await getPool().query('DELETE FROM pastes WHERE id = $1', [id]);
+      try {
+        await getPool().query('DELETE FROM pastes WHERE id = $1', [id]);
+      } catch (deleteError) {
+        console.error('Error deleting paste after max views:', deleteError);
+        // Don't fail the response, user got their paste
+      }
     }
 
     return Response.json({
@@ -80,7 +86,7 @@ export async function GET(request, { params }) {
         createdAt: paste.created_at,
         expiresAt: paste.expires_at,
         viewCount: newViewCount,
-        maxViews: paste.max_views,
+        maxViews: maxViews,
         isLastView: isLastView
       }
     });
